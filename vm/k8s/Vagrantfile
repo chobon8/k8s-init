@@ -1,0 +1,52 @@
+$change_sshd_config = <<-SCRIPT
+echo 'change sshd_config to allow public key authentication & relaod sshd...'
+sed -i 's/\#PermitRootLogin yes/PermitRootLogin yes/' /etc/ssh/sshd_config
+sed -i 's/\#PubkeyAuthentication yes/PubkeyAuthentication yes/' /etc/ssh/sshd_config
+sed -i 's/\#PasswordAuthentication yes/PasswordAuthentication yes/' /etc/ssh/sshd_config
+systemctl reload sshd
+SCRIPT
+
+Vagrant.configure("2") do |config|
+  config.vm.provision "shell", inline: $change_sshd_config
+  config.vm.define "k8s-master-01" do |master_01|
+    master_01.vm.box = "centos7"
+    master_01.vm.hostname = "k8s-master-01"
+    master_01.vm.provider "hyperv" do |v|
+      v.memory = 2048
+      v.cpus = 2
+    end
+  end
+  config.vm.define "k8s-node-01" do |node_01|
+    node_01.vm.box = "centos7"
+    node_01.vm.hostname = "k8s-node-01"
+    node_01.vm.provider "hyperv" do |v|
+      v.memory = 2048
+      v.cpus = 2
+    end
+  end
+  config.vm.define "k8s-node-02" do |node_02|
+    node_02.vm.box = "centos7"
+    node_02.vm.hostname = "k8s-node-02"
+    node_02.vm.provider "hyperv" do |v|
+      v.memory = 2048
+      v.cpus = 2
+    end
+  end
+  config.vm.define "k8s-docker-register" do |docker|
+    docker.vm.box = "centos7"
+    docker.vm.hostname = "k8s-docker-register"
+    docker.vm.provider "hyperv" do |v|
+      v.memory = 1024
+      v.cpus = 1
+    end
+  end
+  config.vm.define "k8s-nfs" do |nfs|
+    nfs.vm.box = "centos7"
+    nfs.vm.hostname = "k8s-nfs"
+    nfs.vm.provider "hyperv" do |v|
+      v.memory = 1024
+      v.cpus = 1
+    end
+  end
+end
+
